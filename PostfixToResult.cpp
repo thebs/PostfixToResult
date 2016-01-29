@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <conio.h>
+#include <math.h>
 
 typedef struct stack{
 	char ch;
@@ -173,11 +174,7 @@ void calculator(){
 			if(str == '^'){
 				x = popTotal();
 				y = popTotal();
-				float temp = 1.0;
-				for(int i=0;i<x;i++){
-					temp *= y;
-				}
-				total = temp;
+				total = pow(y, x);
 				pushTotal(total);
 			}else if(str == '*'){
 				x = popTotal();
