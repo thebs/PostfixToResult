@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <conio.h>
 
 typedef struct stack{
 	char ch;
@@ -44,7 +45,7 @@ int main(int argc, const char* argv[]){
 	char chk;
 	printf("\t<<<<<<<<<< Welcome to Postfix to Result Program >>>>>>>>>>\n");
 	do{
-		printf("\n\tInfix\t: ");
+		printf("\n\tPostfix\t: ");
 		input();
 		printf("\t----------------------------------------------------------");
 		printf("\n\tResult\t: ");
@@ -65,6 +66,8 @@ int main(int argc, const char* argv[]){
 	}while(tolower(chk) != 'n');
 	
 	printf("\n\n\t<<<<<<<<<<<<<<<<<<<<<<<< Good Bye >>>>>>>>>>>>>>>>>>>>>>>>\n\n");
+	
+	getch();
 	return 0;
 }
 
@@ -74,7 +77,7 @@ void input(){
 		fflush(stdin);
 		scanf("%c", &ch);
 		if(ch == '\n')
-			printf("\tInfix\t: ");
+			printf("\tPostfix\t: ");
 	}while(ch == '\n');
 	
 	while(ch != '\n'){
