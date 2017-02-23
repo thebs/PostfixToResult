@@ -13,14 +13,14 @@ typedef struct stack{
 Stack *top = NULL;
 Stack *topForTime = NULL;
 Stack *calTotal = NULL;
-Stack *bVar;
-Stack *eVar;
+Stack *bVar = NULL;
+Stack *eVar = NULL;
 Stack *bCal = NULL;
 Stack *eCal = NULL;
 Stack *bString = NULL;
 Stack *eString = NULL;
 
-int cnt1 = 0, cnt2 = 0;
+int cnt1 = 0, cnt2 = 0, dbZero = 0;
 float total;
 
 void push(char);
@@ -41,6 +41,7 @@ void append();
 void appendString(char);
 void destroy();
 void addVar(char);
+Stack* del(Stack*);
 
 int main(int argc, const char* argv[]){
 	char chk;
@@ -54,7 +55,8 @@ int main(int argc, const char* argv[]){
 		printf("\n\t----------------------------------------------------------\n\n");
 		printf("\tPlease input value each variable\n");
 		calculator();
-		printf("\n\tTotal: %.2f", total);
+		if(!dbZero)
+			printf("\n\tTotal: %.2f", total);
 		printf("\n\t----------------------------------------------------------");
 		destroy();
 		printf("\n\n");
@@ -102,57 +104,28 @@ void output(){
 	}
 }
 
-void destroy(){
-	Stack *travel = bString;
+Stack* del(Stack *travel){
 	Stack *del;
 	while(travel != NULL){
 		del = travel;
 		travel = travel->next;
 		free(del);
 	}
-	bString = NULL;
-	
-	travel = bCal;
-	while(travel != NULL){
-		del = travel;
-		travel = travel->next;
-		free(del);
-	}
-	bCal = NULL;
-	
-	travel = bVar;
-	while(travel != NULL){
-		del = travel;
-		travel = travel->next;
-		free(del);
-	}
-	bVar = NULL;
-	
-	travel = top;
-	while(travel != NULL){
-		del = travel;
-		travel = travel->next;
-		free(del);
-	}
-	
-	travel = topForTime;
-	while(travel != NULL){
-		del = travel;
-		travel = travel->next;
-		free(del);
-	}
-	topForTime = NULL;
-	
-	travel = calTotal;
-	while(travel != NULL){
-		del = travel;
-		travel = travel->next;
-		free(del);
-	}
-	calTotal = NULL;
+
+	return NULL;
+}
+
+void destroy(){
+	bString 	= del(bString);
+	bCal 		= del(bCal);
+	bVar 		= del(bVar);
+	top 		= del(top);
+	topForTime 	= del(topForTime);
+	calTotal 	= del(calTotal);
 }
 
 void calculator(){
+	dbZero = 0;
 	Stack *travel = bCal;
 	stack *tVar = bVar;
 	while(travel != NULL){
@@ -171,32 +144,20 @@ void calculator(){
 			pushTotal(cal->cal);
 			cal = cal->next;
 		}else{
-			if(str == '^'){
-				x = popTotal();
-				y = popTotal();
-				total = pow(y, x);
-				pushTotal(total);
-			}else if(str == '*'){
-				x = popTotal();
-				y = popTotal();
-				total = x * y;
-				pushTotal(total);
-			}else if(str == '/'){
-				x = popTotal();
-				y = popTotal();
+			x = popTotal();
+			y = popTotal();
+			if(str == '^')		total = pow(y, x);
+			else if(str == '*')	total = x * y;
+			else if(str == '/'){
+				if(x == 0){
+					printf("\n\tCan not divide by zero\n");
+					dbZero = 1;
+					break;
+				}
 				total = y / x;
-				pushTotal(total);
-			}else if(str == '+'){
-				x = popTotal();
-				y = popTotal();
-				total = x + y;
-				pushTotal(total);
-			}else if(str == '-'){
-				x = popTotal();
-				y = popTotal();
-				total = y - x;
-				pushTotal(total);
-			}
+			}else if(str == '+')	total = x + y;
+			else if(str == '-')		total = y - x;
+			pushTotal(total);
 		}
 		travel = travel->next;
 	}
@@ -204,10 +165,8 @@ void calculator(){
 
 void addVar(char ch){
 	Stack *n = (Stack *)malloc(sizeof(Stack));
-	if(bVar == NULL)
-		bVar = n;
-	else
-		eVar->next = n;
+	if(bVar == NULL) bVar = n;
+	else eVar->next = n;
 	eVar = n;
 	n->ch = ch;
 	n->next = NULL;
@@ -215,20 +174,16 @@ void addVar(char ch){
 
 void append(){
 	Stack *n = (Stack *)malloc(sizeof(Stack));
-	if(bCal == NULL)
-		bCal = n;
-	else
-		eCal->next = n;
+	if(bCal == NULL) bCal = n;
+	else eCal->next = n;
 	eCal = n;
 	n->next = NULL;
 }
 
 void appendString(char ch){
 	Stack *n = (Stack *)malloc(sizeof(Stack));
-	if(bString == NULL)
-		bString = n;
-	else
-		eString->next = n;
+	if(bString == NULL)	bString = n;
+	else eString->next = n;
 	eString = n;
 	n->ch = ch;
 	n->next = NULL;
@@ -315,12 +270,12 @@ void foundObject(){
 
 void popThenAdd(char ch){
 	char stackTop = topStack();
-	if(isalpha(stackTop) || isdigit(stackTop)){
+	if(isalpha(stackTop)){
 		pushForTime(')');
 		pushForTime(pop());
 		pushForTime(ch);
 		char stackTop_2 = topStack();
-		if(isalpha(stackTop_2) || isdigit(stackTop_2)){
+		if(isalpha(stackTop_2)){
 			pushForTime(pop());
 			push('(');
 			while(topForTime != NULL){
@@ -344,7 +299,7 @@ void popThenAdd(char ch){
 					pushForTime(popStack);
 					pushForTime(ch);
 					char popStack_2 = topStack();
-					if(isalpha(popStack_2) || isdigit(popStack_2)){
+					if(isalpha(popStack_2)){
 						pushForTime(pop());
 						push('(');
 						while(topForTime != NULL){
@@ -366,7 +321,7 @@ void popThenAdd(char ch){
 }
 
 void check(char ch){
-	if(isalpha(ch) || isdigit(ch)){
+	if(isalpha(ch)){
 		push(ch);
 		append();
 		addVar(ch);
